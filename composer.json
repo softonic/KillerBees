@@ -33,9 +33,14 @@
     "require-dev": {
         "phpunit/phpunit": "3.7.*"
     },
+    "autoload-dev": {
+        "psr-4": {
+            "KillerBees\\": "test/KillerBees/"
+        }
+    },
     "autoload": {
         "psr-4": {
-            "KillerBees\\": ["src/KillerBees/", "test/KillerBees/"]
+            "KillerBees\\": "src/KillerBees/"
         }
     }
 }
