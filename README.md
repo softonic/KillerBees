@@ -1,14 +1,14 @@
 # KillerBees #
-
-## Introduction  ##
-
 KillerBees is a stress test tool for web projects. It is ideal to test products or features before their release. It uses Amazon's computing cloud to simulate high concurrency by running parallel requests from many machines. The product/feature has to be accessible publicly.
+
+## Disclaimer ##
+**Using this application in distributed mode may result in a large bill in your Amazon EC2 account**. Be aware that this application is intended to run in several machines, and you will be billed for it. **Make sure the machines are terminated after your test** to prevent unnecessary billing. Use this application only against your own product, don't do evil :) 
 
 ## Prerequisites ##
 
-Killerbees runs in Amazon's cloud so you need an AWS account to use it. We provide you with an AMI (OS image) that works seamlessly with KillerBees but you'll also have the oppotunity to change this.
+KillerBees runs in Amazon's cloud so you need an AWS account to use it. We provide you with a non-working AMI name (OS image) that you will need to replace with one of your own.
 
-KillerBees will automatically launch the number of Amazon instances you specify and distriute itself to them. To do this, you'll need to have a public-private key pair. To get this, login to the [AWS Console](https://console.aws.amazon.com/ "AWS console") go to the *EC2 Dashboard* and select *Key Pairs* from the menu on the left. Click *Create Key Pair* and give your new key pair a name. Your private key will be downloaded. Save it tot he machine you'll use to control KillerBees (Linux only), for example to `/home/your_user/test.pem`.
+KillerBees will automatically launch the number of Amazon instances you specify and distribute itself to them. To do this, you'll need to have a public-private key pair. To get this, login to the [AWS Console](https://console.aws.amazon.com/ "AWS console") go to the *EC2 Dashboard* and select *Key Pairs* from the menu on the left. Click *Create Key Pair* and give your new key pair a name. Your private key will be downloaded. Save it to the machine you'll use to control KillerBees (Linux only), for example to `/home/your_user/test.pem`.
 
 For KillerBees to work you'll need to have the public key too, which you don't get from Amazon. However, you can extract it from the private key:
 
@@ -38,7 +38,7 @@ To install KillerBees you need [Composer](http://getcomposer.org/ "Composer"). I
 
 Once Composer installs the dependencies, you can start configuring it.
 
-    $ bin/killerbees configure:amazon
+    $ php bin/killerbees configure:amazon
 
 Follow the instructions on the screen.
 
@@ -46,7 +46,7 @@ Follow the instructions on the screen.
 
 - *amazon_instance_type*: Micro instances (default) are just fine for this job and they are easy on your wallet.
 
-- *amazon_security_group*: This sets the secority group (firewall settings) for your EC2 instance. If you leave it empty, default security group will be sued which is just fine for our purposes as it allows SSH (port 22).
+- *amazon_security_group*: This sets the security group (firewall settings) for your EC2 instance. If you leave it empty, default security group will be sued which is just fine for our purposes as it allows SSH (port 22).
 
 - *amazon_key_name*: Name of the key pair you generated for EC2. In our example in _Prerequisites_ it's `test`. This key will be used to log into the created instances and run the attack.
 
@@ -76,10 +76,60 @@ This config will make KillerBees attack a single URL (using GET method) with no 
 
 ## Usage ##
 
-### Starting instances ###
+Once the application has been properly installed, configured, and the set of URLs have been defined (see documentation above) then you will be able to inflict a wound to the selected target. There are two ways of running the application:
 
-The first step is to fire up the EC2 machines.
+### Sting with a single bee ###
+Use the following command to attack from a single machine, use this for the first test:
+ 
+	$ php bin/killerbees attack:local
 
-$ bin/killerbees ec2:run --instances 10
+The target URLs will receive the impacts from current machine only. 
 
-*Don't forget to terminate the instances once your test is done*, otherwise receiving your monthly AWS bill will be a disturbing experience.
+### Sting with a swarm of bees ###
+In order to attack from several machines then you need to start the number of instances you want and run the `attack:distributed` command.
+
+Fire up the EC2 machines:
+
+	$ php bin/killerbees ec2:run --instances 10
+
+And run the test from all machines:
+	
+	$ php bin/killerbees attack:distributed
+
+At this point the application will package itself and will be distributed and run as `attack:local` in every single machine. When you have finished your tests, terminate the machines:
+
+	$ php bin/killerbees ec2:terminate
+
+**Don't forget to terminate the instances once your test is done**, otherwise receiving your monthly AWS bill will be a disturbing experience. Ensure in your AWS panel that everything is shut down.
+
+## Available commands ##
+All supported commands will be shown when executing the application with no parameters:
+
+	$ php bin/killerbees
+	KillerBees version Beta
+	
+	Usage:
+	  [options] command [arguments]
+	
+	Options:
+	  --help           -h Display this help message.
+	  --quiet          -q Do not output any message.
+	  --verbose        -v|vv|vvv Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
+	  --version        -V Display this application version.
+	  --ansi              Force ANSI output.
+	  --no-ansi           Disable ANSI output.
+	  --no-interaction -n Do not ask any interactive question.
+	
+	Available commands:
+	  help                 Displays help for a command
+	  list                 Lists commands
+	attack
+	  attack:distributed   Launch an attack distributed on multiple amazon ec2 instances matching the given AMI
+	  attack:local         Launch an attack locally
+	configure
+	  configure:amazon     Configure KillerBees amazon parameters
+	ec2
+	  ec2:run              Run Ec2 Instances
+	  ec2:terminate        Terminate Ec2 Instances created with the given AMI
+	generate
+	  generate:url         Generate basic url config skeleton
