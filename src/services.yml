@@ -1,0 +1,63 @@
+imports:
+    - { resource: amazon.yml }
+
+parameters:
+    killerbees.class.ssh_connection: KillerBees\Ssh\Connection
+    killerbees.browser_timeout:         60
+    killerbees.class.amazon_ec2: \AmazonEC2
+
+services:
+    killerbees.distributed_test:
+        class: KillerBees\DistributedTest
+        arguments:
+            - @killerbees.zip_archive
+            - @killerbees.multi_connection
+
+    killerbees.test:
+        class: KillerBees\Test
+        arguments:
+            - @killerbees.request_action
+
+    killerbees.zip_archive:
+        class: \ZipArchive
+
+    killerbees.ec2:
+        class: KillerBees\Amazon\Ec2
+        arguments:
+         - %amazon_ami%
+         - %killerbees.class.amazon_ec2%
+         - %amazon_credentials%
+
+    killerbees.multi_connection:
+        class: KillerBees\Ssh\MultiConnection
+        arguments:
+            - @killerbees.connection_factory
+
+    killerbees.connection_factory:
+        class: KillerBees\Ssh\ConnectionFactory
+        arguments:
+            - @killerbees.ec2
+            - %killerbees.class.ssh_connection%
+            - %amazon_user%
+            - %amazon_private_key_filepath%
+            - %amazon_public_key_filepath%
+
+    killerbees.configuration.amazon:
+        class: KillerBees\Configuration\Amazon
+
+    killerbees.request_action:
+        class: KillerBees\Process\RequestAction
+        arguments:
+            - @killerbees.browser
+
+    killerbees.browser:
+        class: Buzz\Browser
+        arguments:
+            - @killerbees.browser_client
+
+    killerbees.browser_client:
+        class: Buzz\Client\Curl
+        calls:
+            - ['setOption', [75, 1]] # CURLOPT_FORBID_REUSE
+            - ['setOption', [74, 1]] # CURLOPT_FRESH_CONNECT
+            - ['setTimeout', [75, %killerbees.browser_timeout%]] # CURLOPT_FORBID_REUSE

@@ -1,0 +1,31 @@
+#!/usr/bin/php
+<?php
+/**
+ * killerbees.php.
+ *
+ * @package
+ * @subpackage
+ * @author narcis.davins
+ */
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Symfony\Component\Console\Application;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+
+$container 		= new ContainerBuilder();
+
+$loader 		= new YamlFileLoader( $container, new FileLocator( array( __DIR__ . '/../config', __DIR__ . '/../src' ) ) );
+$loader->load( 'services.yml' );
+
+$application = new Application( 'KillerBees', 'Beta' );
+$application->add( new KillerBees\Command\Ec2\Terminate( $container ) );
+$application->add( new KillerBees\Command\Ec2\Run( $container ) );
+$application->add( new KillerBees\Command\Attack\Local( $container ) );
+$application->add( new KillerBees\Command\Attack\Distributed( $container ) );
+$application->add( new KillerBees\Command\Configure\Amazon( $container ) );
+$application->add( new KillerBees\Command\Generate\Url( $container ) );
+$application->run();
+
+?>

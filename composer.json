@@ -1,0 +1,41 @@
+{
+    "name": "softonic/killerbees",
+    "version": "1.0.0-beta",
+    "type": "project",
+    "description": "HTTP stress test tool using Amazon EC2 machines to simulate high concurrency user activity.",
+    "keywords": ["stress test","load test","ddos","amazon","ec2"],
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Narcis Davins",
+            "email": "narcis.davins@softonic.com",
+            "homepage": "http://www.softonic.com",
+            "role": "Architecture Engineer"
+        },
+        {
+            "name": "Zoltan Toth-Czifra",
+            "email": "zoltan.tothczifra@softonic.com",
+            "homepage": "http://www.softonic.com",
+            "role": "Architecture Engineer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3",
+        "ext-ssh2": "*",
+        "ext-pcntl": "*",
+        "amazonwebservices/aws-sdk-for-php": "*",
+        "symfony/yaml" : "*",
+        "kriswallsmith/buzz": "*",
+        "symfony/console": "*",
+        "symfony/dependency-injection": "*",
+        "symfony/config": "*"
+	},
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "KillerBees\\": ["src/KillerBees/", "test/KillerBees/"]
+        }
+    }
+}
